@@ -7,12 +7,27 @@ body {
   background: #f0f0f0;
 }
 
-canvas {
+.main-container {
+  width: 90vw; /* Use viewport width for responsiveness */
+  max-width: 1200px; /* Max size of the canvas */
+  margin: 20px auto; /* Adds some vertical margin and centers the block */
+  display: flex; /* Use flex to center canvas if it's smaller than container */
+  justify-content: center; /* Center canvas horizontally in container */
+  align-items: center; /* Center canvas vertically in container */
+}
+
+canvas#florCanvas { /* Changed from 'canvas' to 'canvas#florCanvas' */
+  width: 100%;
+  max-width: 1200px; /* Original design width */
+  height: auto;    /* Let aspect-ratio handle it or browser calculate based on content */
+  aspect-ratio: 1200 / 900; /* Maintain 4:3 aspect ratio */
   background: #fff;
   border: 1px solid #333;
   border-radius: 20px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
-  display: block;
+  display: block; /* Ensures it behaves as a block element */
+  margin-left: auto; /* For centering if parent is not flex */
+  margin-right: auto; /* For centering if parent is not flex */
 }
 
 #mensajeMotivacional {
@@ -82,11 +97,4 @@ canvas {
   }
 
   /* Ajusta otros elementos según sea necesario */
-}
-.canvas-container {
-  width: 1200px; /* Ancho fijo */
-  height: 400px;
-  overflow: auto; /* Activa el scroll */
-  border: 1px solid #333;
-  margin: 40px auto; /* Centra horizontalmente */
 }

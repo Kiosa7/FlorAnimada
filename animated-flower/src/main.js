@@ -1,7 +1,5 @@
 const canvas = document.getElementById("florCanvas");
 const ctx = canvas.getContext("2d");
-const w = window.innerWidth;
-const h = window.innerHeight;
 let colorMensaje = null;
 // Lista de colores disponibles
 const coloresDisponibles = ['red', 'blue', 'yellow', 'green', 'purple', 'orange'];
@@ -82,33 +80,51 @@ function drawFlower(
   ctx.restore();
 }
 
-// Generar muchas flores aleatorias
-const garden = [];
+// At the top, after ctx declaration and before other functions:
+let garden = [];
+let t = 0;
+// colorMensaje and mensajeActual are already global
+
 const flowerColors = ["#e63946", "#d90429", "#ff477e", "#43aa8b", "#4361ee", "#f9c74f", "#f3722c"];
 const centerColors = ["#f1c40f", "#fff", "#f9c74f", "#f3722c"];
-const numFlowers = 18;
-const marginX = 40;
-const marginY = 60;
-const usableWidth = w - 2 * marginX;
-const usableHeight = 120;
+// Make sure flowerColors and centerColors are accessible if they were defined inside the scope that's being refactored.
+// They are currently global which is fine.
 
-for (let i = 0; i < numFlowers; i++) {
-  // Distribución horizontal uniforme con un poco de aleatoriedad
-  const col = i % numFlowers;
-  const x = marginX + (usableWidth / (numFlowers - 1)) * i + (Math.random() - 0.5) * 20;
-  // Distribución vertical con variación
-  const y = h/2 + marginY + Math.random() * usableHeight;
-  const color = flowerColors[Math.floor(Math.random() * flowerColors.length)];
-  const centerColor = centerColors[Math.floor(Math.random() * centerColors.length)];
-  const scale = 0.8 + Math.random() * 0.7;
-  const swaySpeed = 0.01 + Math.random() * 0.01;
-  const swayOffset = Math.random() * 10;
-  const petals = 5 + Math.floor(Math.random() * 3);
-  const k = 2 + Math.floor(Math.random() * 3);
-  garden.push({ x, y, color, centerColor, scale, swaySpeed, swayOffset, petals, k });
+function setupCanvasAndGarden() {
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+
+    garden.length = 0; // Clear existing flowers for re-initialization
+    // t = 0; // Optionally reset animation time/phase
+
+    const marginX = 40;
+    const marginY = 20; // Adjusted marginY slightly for placement
+    const numFlowers = 18;
+
+    const usableWidth = canvas.width - 2 * marginX;
+    // Adjust Y positioning: flowers were originally h/2 + marginY + random(usableHeight=120)
+    // h/2 was vertical center of window. Let's try to place them relative to canvas bottom.
+    // Example: canvas.height * 0.8 is 80% from top. Spread them above this.
+    // Let's try to keep them somewhat centered vertically but more controlled.
+    // Base Y around 60-70% of canvas height.
+    const flowerBedCenterY = canvas.height * 0.7;
+    const usableFlowerHeightSpread = canvas.height * 0.2; // Spread them over 20% of canvas height
+
+    for (let i = 0; i < numFlowers; i++) {
+        const x = marginX + (usableWidth / (numFlowers > 1 ? numFlowers - 1 : 1)) * i + (Math.random() - 0.5) * 20;
+        // Place flowers in a band, example:
+        const y = flowerBedCenterY + (Math.random() - 0.5) * usableFlowerHeightSpread;
+
+        const color = flowerColors[Math.floor(Math.random() * flowerColors.length)];
+        const centerColor = centerColors[Math.floor(Math.random() * centerColors.length)];
+        const scale = 0.8 + Math.random() * 0.7;
+        const swaySpeed = 0.01 + Math.random() * 0.01;
+        const swayOffset = Math.random() * 10;
+        const petals = 5 + Math.floor(Math.random() * 3);
+        const k = 2 + Math.floor(Math.random() * 3);
+        garden.push({ x, y, color, centerColor, scale, swaySpeed, swayOffset, petals, k });
+    }
 }
-
-let t = 0;
 
 // 1. Variable global para el mensaje
 let mensajeActual = '';
@@ -158,7 +174,19 @@ function animate() {
   requestAnimationFrame(animate);
 }
 
-animate();
+// Initial setup:
+setupCanvasAndGarden();
+animate(); // Start animation loop
+
+// Resize handler:
+let resizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        setupCanvasAndGarden();
+        // The animate loop will automatically pick up changes, no need to restart it
+    }, 250); // Debounce for 250ms
+});
 
 const mensajeDiv = document.getElementById('mensajeMotivacional');
 
