@@ -1,7 +1,7 @@
 const canvas = document.getElementById("florCanvas");
 const ctx = canvas.getContext("2d");
-const w = canvas.width;
-const h = canvas.height;
+const w = window.innerWidth;
+const h = window.innerHeight;
 let colorMensaje = null;
 // Lista de colores disponibles
 const coloresDisponibles = ['red', 'blue', 'yellow', 'green', 'purple', 'orange'];
@@ -137,7 +137,7 @@ function animate() {
   garden.forEach((flower) => {
     const sway = Math.sin(t * flower.swaySpeed + flower.swayOffset) * 0.18;
     flower.currentSway = sway;
-    drawStem(ctx, flower.x, flower.y, 100 + flower.scale * 30, sway);
+    drawStem(ctx, flower.x, flower.y, 110 + flower.scale * 50, sway);
     drawFlower(
       ctx,
       flower.x,
