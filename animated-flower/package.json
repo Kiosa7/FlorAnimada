@@ -1,0 +1,21 @@
+{
+  "name": "animated-flower",
+  "version": "1.0.0",
+  "description": "A project that generates an animated flower using HTML, CSS, and JavaScript with a canvas for drawing.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "live-server src"
+  },
+  "keywords": [
+    "animation",
+    "canvas",
+    "flower",
+    "javascript"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "live-server": "^1.2.1"
+  }
+}
