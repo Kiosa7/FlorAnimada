@@ -4,7 +4,7 @@ Programa: "Jardin en JavaScript"
 Este programa web es un regalo especial para mi hija Frida: un jardin animado que no solo florece en la pantalla, sino que también da consejos positivos al hacer clic sobre ellas. Todo ha sido creado con tecnologías web: HTML, CSS y JavaScript, para unir el arte, la programación y el cariño en un solo proyecto.
 
 ✨ ¿Qué hace este programa?
-Dibuja una flor animada sobre un lienzo (canvas) utilizando fórmulas matemáticas en coordenadas polares. Pero lo mágico ocurre cuando Frida hace clic en la flor: aparece un mensaje con un consejo motivador o inspirador, pensado para acompañarla con alegría y sabiduría en su día a día.
+Dibuja flores animadas sobre un lienzo (canvas) utilizando fórmulas matemáticas en coordenadas polares. Pero lo mágico ocurre cuando Frida hace clic en la flor: aparece un mensaje con un consejo motivador o inspirador, pensado para acompañarla con alegría y sabiduría en su día a día.
 
 🛠️ Tecnologías utilizadas:
 
