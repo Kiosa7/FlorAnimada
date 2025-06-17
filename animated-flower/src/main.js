@@ -116,6 +116,7 @@ let mensajeActual = '';
 // 2. Dibuja el mensaje arriba de las flores en animate()
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawChihuahua(ctx, canvas.width / 2.2, canvas.height / 1.45, 1);
 
   // Fondo de jardín
   dibujarFondoJardin();
@@ -125,6 +126,8 @@ function animate() {
   dibujarNube(500, 80, 0.9);
   dibujarNube(600, 40, 0.7);
   dibujarNube(700, 70, 0.7);   
+  dibujarNube(800, 80, 0.9);   
+  dibujarNube(900, 50, 0.8);   
    
   // Dibuja el mensaje si existe
   if (mensajeActual) {
@@ -137,7 +140,7 @@ function animate() {
   garden.forEach((flower) => {
     const sway = Math.sin(t * flower.swaySpeed + flower.swayOffset) * 0.18;
     flower.currentSway = sway;
-    drawStem(ctx, flower.x, flower.y, 110 + flower.scale * 50, sway);
+    drawStem(ctx, flower.x, flower.y, 110 + flower.scale * 80, sway);
     drawFlower(
       ctx,
       flower.x,
@@ -344,6 +347,72 @@ function colorAleatorio() {
   const g = Math.floor(Math.random() * 256);
   const b = Math.floor(Math.random() * 256);
   return `rgb(${r},${g},${b})`;
+}
+
+function drawChihuahua(ctx, x, y, scale = 1) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(scale, scale);
+
+    // Cuerpo
+    ctx.fillStyle = '#c49e6c';
+    ctx.beginPath();
+    ctx.ellipse(0, 40, 35, 50, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Cabeza
+    ctx.beginPath();
+    ctx.ellipse(0, -10, 30, 28, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Oreja izquierda
+    ctx.beginPath();
+    ctx.moveTo(-18, -35);
+    ctx.lineTo(-38, -65);
+    ctx.lineTo(-10, -25);
+    ctx.closePath();
+    ctx.fill();
+
+    // Oreja derecha
+    ctx.beginPath();
+    ctx.moveTo(18, -35);
+    ctx.lineTo(38, -65);
+    ctx.lineTo(10, -25);
+    ctx.closePath();
+    ctx.fill();
+
+    // Hocico
+    ctx.fillStyle = '#a67c52';
+    ctx.beginPath();
+    ctx.ellipse(0, 10, 12, 8, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Nariz
+    ctx.fillStyle = '#333';
+    ctx.beginPath();
+    ctx.ellipse(0, 15, 4, 2, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Ojo izquierdo
+    ctx.beginPath();
+    ctx.arc(-10, -5, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#222';
+    ctx.fill();
+
+    // Ojo derecho
+    ctx.beginPath();
+    ctx.arc(10, -5, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Cola
+    ctx.strokeStyle = '#c49e6c';
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.moveTo(30, 60);
+    ctx.quadraticCurveTo(60, 70, 40, 30);
+    ctx.stroke();
+
+    ctx.restore();
 }
 
 
