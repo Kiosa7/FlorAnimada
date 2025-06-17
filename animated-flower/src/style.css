@@ -1,19 +1,18 @@
 body {
-  background: #f0f8ff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   height: 100vh;
   margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: sans-serif;
+  display: flex;
+  justify-content: center;  /* Centra horizontalmente */
+  align-items: center;      /* Centra verticalmente */
+  background: #f0f0f0;
 }
 
 canvas {
   background: #fff;
+  border: 1px solid #333;
   border-radius: 20px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+  display: block;
 }
 
 #mensajeMotivacional {
@@ -84,5 +83,10 @@ canvas {
 
   /* Ajusta otros elementos según sea necesario */
 }
-
-
+.canvas-container {
+  width: 1200px; /* Ancho fijo */
+  height: 400px;
+  overflow: auto; /* Activa el scroll */
+  border: 1px solid #333;
+  margin: 40px auto; /* Centra horizontalmente */
+}
