@@ -350,69 +350,79 @@ function colorAleatorio() {
 }
 
 function drawChihuahua(ctx, x, y, scale = 1) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.scale(scale, scale);
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
 
-    // Cuerpo
-    ctx.fillStyle = '#c49e6c';
-    ctx.beginPath();
-    ctx.ellipse(0, 40, 35, 50, 0, 0, Math.PI * 2);
-    ctx.fill();
+  // Cuerpo (café oscuro)
+  ctx.fillStyle = "#6b4f27";
+  ctx.beginPath();
+  ctx.ellipse(0, 40, 35, 50, 0, 0, Math.PI * 2);
+  ctx.fill();
 
-    // Cabeza
-    ctx.beginPath();
-    ctx.ellipse(0, -10, 30, 28, 0, 0, Math.PI * 2);
-    ctx.fill();
+  // Cabeza (negro)
+  ctx.fillStyle = "#222";
+  ctx.beginPath();
+  ctx.ellipse(0, -10, 30, 28, 0, 0, Math.PI * 2);
+  ctx.fill();
 
-    // Oreja izquierda
-    ctx.beginPath();
-    ctx.moveTo(-18, -35);
-    ctx.lineTo(-38, -65);
-    ctx.lineTo(-10, -25);
-    ctx.closePath();
-    ctx.fill();
+  // Oreja izquierda (negro)
+  ctx.beginPath();
+  ctx.moveTo(-18, -35);
+  ctx.lineTo(-38, -65);
+  ctx.lineTo(-10, -25);
+  ctx.closePath();
+  ctx.fill();
 
-    // Oreja derecha
-    ctx.beginPath();
-    ctx.moveTo(18, -35);
-    ctx.lineTo(38, -65);
-    ctx.lineTo(10, -25);
-    ctx.closePath();
-    ctx.fill();
+  // Oreja derecha (negro)
+  ctx.beginPath();
+  ctx.moveTo(18, -35);
+  ctx.lineTo(38, -65);
+  ctx.lineTo(10, -25);
+  ctx.closePath();
+  ctx.fill();
 
-    // Hocico
-    ctx.fillStyle = '#a67c52';
-    ctx.beginPath();
-    ctx.ellipse(0, 10, 12, 8, 0, 0, Math.PI * 2);
-    ctx.fill();
+  // Hocico (café claro)
+  ctx.fillStyle = "#a67c52";
+  ctx.beginPath();
+  ctx.ellipse(0, 10, 12, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
 
-    // Nariz
-    ctx.fillStyle = '#333';
-    ctx.beginPath();
-    ctx.ellipse(0, 15, 4, 2, 0, 0, Math.PI * 2);
-    ctx.fill();
+  // Nariz (negro)
+  ctx.fillStyle = "#111";
+  ctx.beginPath();
+  ctx.ellipse(0, 15, 4, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
 
-    // Ojo izquierdo
-    ctx.beginPath();
-    ctx.arc(-10, -5, 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#222';
-    ctx.fill();
+  // Ojo izquierdo (blanco y negro)
+  ctx.beginPath();
+  ctx.arc(-10, -5, 5, 0, Math.PI * 2);
+  ctx.fillStyle = "#fff";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(-10, -5, 2.5, 0, Math.PI * 2);
+  ctx.fillStyle = "#111";
+  ctx.fill();
 
-    // Ojo derecho
-    ctx.beginPath();
-    ctx.arc(10, -5, 4, 0, Math.PI * 2);
-    ctx.fill();
+  // Ojo derecho (blanco y negro)
+  ctx.beginPath();
+  ctx.arc(10, -5, 5, 0, Math.PI * 2);
+  ctx.fillStyle = "#fff";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(10, -5, 2.5, 0, Math.PI * 2);
+  ctx.fillStyle = "#111";
+  ctx.fill();
 
-    // Cola
-    ctx.strokeStyle = '#c49e6c';
-    ctx.lineWidth = 6;
-    ctx.beginPath();
-    ctx.moveTo(30, 60);
-    ctx.quadraticCurveTo(60, 70, 40, 30);
-    ctx.stroke();
+  // Cola (café oscuro)
+  ctx.strokeStyle = "#6b4f27";
+  ctx.lineWidth = 6;
+  ctx.beginPath();
+  ctx.moveTo(30, 60);
+  ctx.quadraticCurveTo(60, 70, 40, 30);
+  ctx.stroke();
 
-    ctx.restore();
+  ctx.restore();
 }
 
 
