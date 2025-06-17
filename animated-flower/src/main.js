@@ -116,7 +116,7 @@ let mensajeActual = '';
 // 2. Dibuja el mensaje arriba de las flores en animate()
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawChihuahua(ctx, canvas.width / 2.2, canvas.height / 1.45, 1);
+  drawChihuahua(ctx,50 , canvas.height / 2.5, 1);
 
   // Fondo de jardín
   dibujarFondoJardin();
