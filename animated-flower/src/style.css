@@ -1,28 +1,33 @@
 body {
-    background: #f0f8ff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
+  background: #f0f8ff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
 }
 
 canvas {
-    background: #fff;
-    border-radius: 20px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1); }
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+}
 
 #mensajeMotivacional {
   position: absolute;
-  top: 40px; /* Ajusta este valor según lo alto que quieras el mensaje */
+  top: 40px;
+  /* Ajusta este valor según lo alto que quieras el mensaje */
   left: 50%;
   transform: translateX(-50%);
   min-width: 320px;
   max-width: 80vw;
   padding: 24px 32px;
-  background: rgba(255,255,255,0.95);
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 18px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
   color: #222;
   font-size: 1.4rem;
   font-weight: bold;
@@ -39,11 +44,43 @@ canvas {
 }
 
 @keyframes aparecer {
-  from { opacity: 0; transform: translateX(-50%) scale(0.9);}
-  to   { opacity: 1; transform: translateX(-50%) scale(1);}
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
 }
 
 @keyframes desaparecer {
-  from { opacity: 1; }
-  to   { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: auto;
+  padding: 16px;
+}
+
+/* Ejemplo de media query para pantallas pequeñas */
+@media (max-width: 600px) {
+  .container {
+    padding: 8px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  /* Ajusta otros elementos según sea necesario */
 }
