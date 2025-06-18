@@ -22,62 +22,129 @@ function asignarColoresUnicos(numFlores) {
     return coloresAsignados;
 }
 
-function drawStem(ctx, x, y, length, angle, color = "#228B22") {
-  ctx.save();
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 7;
-  ctx.beginPath();
-  ctx.moveTo(x, y);
-  ctx.bezierCurveTo(
-    x,
-    y + length * 0.3,
-    x + 30 * Math.sin(angle),
-    y + length * 0.7,
-    x,
-    y + length
-  );
-  ctx.stroke();
-  ctx.restore();
+function brightenColor(hexColor, percent) {
+    if (!hexColor || hexColor.length < 7) hexColor = '#FFC0CB'; // Default to pink if invalid or too short
+    let r = parseInt(hexColor.slice(1, 3), 16);
+    let g = parseInt(hexColor.slice(3, 5), 16);
+    let b = parseInt(hexColor.slice(5, 7), 16);
+
+    r = Math.min(255, Math.max(0, r + Math.floor(255 * (percent / 100))));
+    g = Math.min(255, Math.max(0, g + Math.floor(255 * (percent / 100))));
+    b = Math.min(255, Math.max(0, b + Math.floor(255 * (percent / 100))));
+
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 }
 
-function drawFlower(
-  ctx,
-  x,
-  y,
-  scale,
-  rotation,
-  color,
-  centerColor,
-  petals = 6,
-  k = 3
-) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(rotation);
+function drawLeaf(ctx, x, y, size, angle, color) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(0, 0); // Tip of leaf attachment
+    ctx.quadraticCurveTo(size * 0.8, -size * 0.4, size, 0); // Upper curve
+    ctx.quadraticCurveTo(size * 0.8, size * 0.4, 0, 0);    // Lower curve
+    ctx.fill();
+    ctx.restore();
+}
 
-  // Pétalos
-  const a = 32 * scale;
-  ctx.beginPath();
-  for (let theta = 0; theta <= Math.PI * 2; theta += 0.01) {
-    let r = a * Math.sin(k * theta);
-    let px = r * Math.cos(theta);
-    let py = r * Math.sin(theta);
-    ctx.lineTo(px, py);
-  }
-  ctx.closePath();
-  ctx.fillStyle = color;
-  ctx.shadowColor = color;
-  ctx.shadowBlur = 10;
-  ctx.fill();
+function drawStem(ctx, baseX, baseY, length, swayAngle, stemColor = "#4A7729") { // Default to a darker green
+    ctx.save();
+    ctx.strokeStyle = stemColor;
+    // Scale stem width slightly with its length, ensuring a minimum width
+    ctx.lineWidth = Math.max(2.5, 6 * Math.min(1, length / 100)) ;
 
-  // Centro
-  ctx.beginPath();
-  ctx.arc(0, 0, 10 * scale, 0, Math.PI * 2);
-  ctx.fillStyle = centerColor;
-  ctx.shadowBlur = 0;
-  ctx.fill();
+    // Sway calculations, also scaled by length to make longer stems sway more naturally
+    const tipSwayX = 8 * Math.sin(swayAngle) * (length / 100);
+    const midSwayX1 = 15 * Math.sin(swayAngle * 0.6) * (length / 100);
+    const midSwayX2 = -12 * Math.sin(swayAngle * 0.8) * (length / 100);
 
-  ctx.restore();
+    const flowerAttachX = baseX + tipSwayX;
+    const flowerAttachY = baseY - length; // Y position of flower head (upwards from ground)
+
+    ctx.beginPath();
+    ctx.moveTo(baseX, baseY); // Start at ground
+    ctx.bezierCurveTo(
+        baseX + midSwayX1, baseY - length * 0.33, // control point 1
+        baseX + midSwayX2, baseY - length * 0.66, // control point 2
+        flowerAttachX, flowerAttachY             // end point (where flower attaches)
+    );
+    ctx.stroke();
+
+    // Add leaves
+    const leafColor = brightenColor(stemColor, 25);
+    const leafScaleFactor = Math.max(0.4, Math.min(1.2, length / 90)); // Scale leaves with stem length, capped
+
+    if (length > 35 * (canvas.height / 700)) { // Only add leaves if stem is reasonably long (scaled)
+        // Leaf 1
+        let leaf1X = baseX + (flowerAttachX - baseX) * 0.4; // Approx position along stem
+        let leaf1Y = baseY - length * 0.45;
+        drawLeaf(ctx, leaf1X, leaf1Y, 20 * leafScaleFactor, Math.PI / 3.5 + swayAngle * 0.5, leafColor);
+
+        if (length > 65 * (canvas.height / 700)) { // Second leaf for longer stems
+             let leaf2X = baseX + (flowerAttachX - baseX) * 0.25;
+             let leaf2Y = baseY - length * 0.7;
+             drawLeaf(ctx, leaf2X, leaf2Y, 18 * leafScaleFactor, -Math.PI / 3 + swayAngle * 0.7, leafColor);
+        }
+    }
+
+    ctx.restore();
+    return { x: flowerAttachX, y: flowerAttachY }; // Return attachment point for the flower head
+}
+
+function drawFlower(ctx, x, y, scale, rotation, color, centerColor, petals = 6) { // k parameter removed
+    ctx.save();
+    ctx.translate(x, y); // Flower head center
+    ctx.rotate(rotation);
+
+    const petalLength = 28 * scale;
+    const petalWidth = 12 * scale;
+
+    // Petals
+    for (let i = 0; i < petals; i++) {
+        const angle = (Math.PI * 2 / petals) * i;
+        ctx.save();
+        ctx.rotate(angle); // Rotate for each petal
+
+        // Gradient for the petal (center to tip)
+        const grad = ctx.createRadialGradient(0, 0, petalWidth * 0.2, 0, -petalLength*0.5, petalLength);
+        grad.addColorStop(0, brightenColor(color, 30));
+        grad.addColorStop(0.6, color);
+        grad.addColorStop(1, brightenColor(color, -25));
+        ctx.fillStyle = grad;
+
+        ctx.shadowColor = brightenColor(color, -40);
+        ctx.shadowBlur = 6;
+
+        // Draw individual petal shape
+        ctx.beginPath();
+        ctx.moveTo(0, 0); // Start at the flower center for this petal
+        ctx.bezierCurveTo(
+            petalWidth * 0.6, -petalLength * 0.3,  // Control point 1 (near center, wide)
+            petalWidth * 0.8, -petalLength * 0.8,  // Control point 2 (mid petal, shaping)
+            0, -petalLength                     // Tip of petal (y is negative, upwards)
+        );
+        ctx.bezierCurveTo(
+            -petalWidth * 0.8, -petalLength * 0.8, // Control point 3 (mirroring CP2)
+            -petalWidth * 0.6, -petalLength * 0.3,  // Control point 4 (mirroring CP1)
+            0, 0                                 // Back to flower center
+        );
+        ctx.fill();
+        ctx.restore(); // Restore rotation for this petal
+    }
+
+    // Flower Center (drawn on top of petals)
+    ctx.beginPath();
+    ctx.arc(0, 0, 9 * scale, 0, Math.PI * 2);
+    const centerGrad = ctx.createRadialGradient(0, 0, 2 * scale, 0, 0, 9 * scale);
+    centerGrad.addColorStop(0, brightenColor(centerColor, 40));
+    centerGrad.addColorStop(1, centerColor);
+    ctx.fillStyle = centerGrad;
+    ctx.shadowColor = brightenColor(centerColor, -30);
+    ctx.shadowBlur = 4;
+    ctx.fill();
+
+    ctx.restore(); // Restore original transform state
 }
 
 // At the top, after ctx declaration and before other functions:
@@ -107,22 +174,25 @@ function setupCanvasAndGarden() {
     // Example: canvas.height * 0.8 is 80% from top. Spread them above this.
     // Let's try to keep them somewhat centered vertically but more controlled.
     // Base Y around 60-70% of canvas height.
-    const flowerBedCenterY = canvas.height * 0.7;
-    const usableFlowerHeightSpread = canvas.height * 0.2; // Spread them over 20% of canvas height
+    // const flowerBedCenterY = canvas.height * 0.7; // Old Y calculation
+    // const usableFlowerHeightSpread = canvas.height * 0.2; // Old Y calculation
 
     for (let i = 0; i < numFlowers; i++) {
         const x = marginX + (usableWidth / (numFlowers > 1 ? numFlowers - 1 : 1)) * i + (Math.random() - 0.5) * 20;
-        // Place flowers in a band, example:
-        const y = flowerBedCenterY + (Math.random() - 0.5) * usableFlowerHeightSpread;
+
+        const groundLineStart = canvas.height * 0.8; // Top of the first grass layer
+        const groundLineEnd = canvas.height * 0.9;   // Top of the earth layer
+        // Place flowers randomly between these two lines, mostly on grass
+        const y = groundLineStart + Math.random() * (groundLineEnd - groundLineStart);
 
         const color = flowerColors[Math.floor(Math.random() * flowerColors.length)];
         const centerColor = centerColors[Math.floor(Math.random() * centerColors.length)];
-        const scale = 0.8 + Math.random() * 0.7;
+        const scale = 0.8 + Math.random() * 0.7; // scale affects flower head size and stem length
         const swaySpeed = 0.01 + Math.random() * 0.01;
         const swayOffset = Math.random() * 10;
-        const petals = 5 + Math.floor(Math.random() * 3);
-        const k = 2 + Math.floor(Math.random() * 3);
-        garden.push({ x, y, color, centerColor, scale, swaySpeed, swayOffset, petals, k });
+        const petals = 5 + Math.floor(Math.random() * 3); // Random number of petals
+        // k parameter is removed from drawFlower, so no need to store it.
+        garden.push({ x, y, color, centerColor, scale, swaySpeed, swayOffset, petals });
     }
 }
 
@@ -155,19 +225,21 @@ function animate() {
 
   garden.forEach((flower) => {
     const sway = Math.sin(t * flower.swaySpeed + flower.swayOffset) * 0.18;
-    flower.currentSway = sway;
-    drawStem(ctx, flower.x, flower.y, 110 + flower.scale * 80, sway);
-    drawFlower(
-      ctx,
-      flower.x,
-      flower.y,
-      flower.scale,
-      sway,
-      flower.color,
-      flower.centerColor,
-      flower.petals,
-      flower.k
-    );
+
+    // Scale stem length with canvas height, relative to a reference design height (e.g., 700px)
+    // and also incorporate the flower's individual scale property.
+    let baseStemLength = 60; // Base length for an average flower before scaling
+    let individualScaleFactor = flower.scale * 0.8 + 0.4; // Apply flower.scale (0.8-1.5) to vary length more
+    let scaledStemLength = baseStemLength * individualScaleFactor;
+    // Ensure stem length is responsive to canvas height, but don't let them get too tiny or huge
+    const stemLength = Math.max(20, scaledStemLength * (canvas.height / 700));
+
+    // flower.x is horizontal position on ground, flower.y is ground level Y for this flower's stem base
+    const flowerAttachPoint = drawStem(ctx, flower.x, flower.y, stemLength, sway, "#4A7729"); // Using a fixed dark green for stems
+
+    // Pass the number of petals from the flower object if it exists, otherwise default in drawFlower
+    let petalCount = flower.petals || 6;
+    drawFlower(ctx, flowerAttachPoint.x, flowerAttachPoint.y, flower.scale, sway, flower.color, flower.centerColor, petalCount);
   });
 
   t += 1;
@@ -329,45 +401,121 @@ canvas.addEventListener('click', function(e) {
 });
 
 function dibujarFondoJardin() {
-    // Dibuja el cielo (arriba)
-    ctx.fillStyle = "#87ceeb"; // Azul cielo
-    ctx.fillRect(0, 0, canvas.width, canvas.height/2 * 0.4);
+    const skyTopColor = "#5DADE2"; // A slightly richer blue for top
+    const skyBottomColor = "#A9CCE3"; // Lighter blue for horizon
+    const grassTopColor = "#82E0AA"; // Lighter green
+    const grassBottomColor = "#2ECC71"; // Darker green
+    const earthColor = "#A0522D"; // Brown earth
+
+    const skyHeight = canvas.height * 0.70;
+    const grassHeight = canvas.height * 0.20;
+    const earthHeight = canvas.height * 0.10;
+
+    // Sky Gradient
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, skyHeight);
+    skyGrad.addColorStop(0, skyTopColor);
+    skyGrad.addColorStop(1, skyBottomColor);
+    ctx.fillStyle = skyGrad;
+    ctx.fillRect(0, 0, canvas.width, skyHeight);
+
+    // Grass Gradient (subtle vertical gradient)
+    const grassStartY = skyHeight;
+    const grassGrad = ctx.createLinearGradient(0, grassStartY, 0, grassStartY + grassHeight);
+    grassGrad.addColorStop(0, grassTopColor);
+    grassGrad.addColorStop(1, grassBottomColor);
+    ctx.fillStyle = grassGrad;
+    ctx.fillRect(0, grassStartY, canvas.width, grassHeight);
     
-    // Dibuja el césped (centro)
-    ctx.fillStyle = '#6ab150'; // Verde césped
-    ctx.fillRect(0, canvas.height * 0.8, canvas.width, canvas.height * 0.5);
+    // Earth
+    const earthStartY = skyHeight + grassHeight;
+    ctx.fillStyle = earthColor;
+    ctx.fillRect(0, earthStartY, canvas.width, earthHeight);
 
-    // Dibuja la tierra (abajo)
-    ctx.fillStyle = '#a0522d'; // Marrón tierra
-    ctx.fillRect(0, canvas.height * 0.9, canvas.width, canvas.height * 0.1);
-
-    // Opcional: arbustos simples sobre el césped
+    // Optional: arbustos simples sobre el césped (adjust Y positions)
+    // Adjusted Y position to be on the new grass area, slightly above the earth line.
+    const bushBaseY = skyHeight + grassHeight * 0.8; // Place them in the lower part of the grass
     for (let i = 0; i < canvas.width; i += 120) {
         ctx.beginPath();
-        ctx.arc(i + 40, canvas.height * 0.85, 30, Math.PI, 2 * Math.PI);
-        ctx.arc(i + 70, canvas.height * 0.85, 25, Math.PI, 2 * Math.PI);
-        ctx.arc(i + 100, canvas.height * 0.85, 20, Math.PI, 2 * Math.PI);
-        ctx.fillStyle = '#357a38';
+        // Make bushes slightly smaller and vary size a bit more
+        const bushSize1 = 20 + Math.random() * 10;
+        const bushSize2 = 15 + Math.random() * 8;
+        const bushSize3 = 10 + Math.random() * 6;
+        ctx.arc(i + 40, bushBaseY, bushSize1, Math.PI, 2 * Math.PI);
+        ctx.arc(i + 70, bushBaseY, bushSize2, Math.PI, 2 * Math.PI);
+        ctx.arc(i + 100, bushBaseY, bushSize3, Math.PI, 2 * Math.PI);
+        ctx.fillStyle = '#27AE60'; // A slightly darker, more saturated green for bushes
         ctx.fill();
     }
 }
 
-function dibujarNube(x, y, escala) {
-  ctx.beginPath();
-  ctx.arc(x, y, 20 * escala, Math.PI * 0.5, Math.PI * 1.5);
-  ctx.arc(
-    x + 30 * escala,
-    y - 20 * escala,
-    30 * escala,
-    Math.PI * 1,
-    Math.PI * 1.85
-  );
-  ctx.arc(x + 60 * escala, y, 20 * escala, Math.PI * 1.5, Math.PI * 0.5);
-  ctx.closePath();
-  ctx.fillStyle = "#fff";
-  ctx.globalAlpha = 0.8;
-  ctx.fill();
-  ctx.globalAlpha = 1.0;
+function dibujarNube(baseX, baseY, baseScale) {
+    const numPuffs = 4 + Math.floor(Math.random() * 3); // Each cloud has 4 to 6 puffs
+    const cloudPuffs = [];
+
+    // Generate puff properties relative to baseX, baseY for this specific cloud instance
+    for (let i = 0; i < numPuffs; i++) {
+        // Adjust random offsets to be smaller for a more coherent cloud shape
+        const offsetX = (Math.random() - 0.5) * 50 * baseScale;
+        const offsetY = (Math.random() - 0.5) * 20 * baseScale;
+        const radius = (15 + Math.random() * 15) * baseScale; // Puffs of varying sizes
+        cloudPuffs.push({ x: baseX + offsetX, y: baseY + offsetY, r: radius });
+    }
+
+    // Main cloud body (lighter, more transparent)
+    // ctx.beginPath(); // Combined into the corrected order section
+    // cloudPuffs.forEach(puff => {
+    //     ctx.moveTo(puff.x + puff.r, puff.y); // moveTo to start of arc for each circle
+    //     ctx.arc(puff.x, puff.y, puff.r, 0, Math.PI * 2);
+    // });
+    // ctx.fillStyle = "rgba(255, 255, 255, 0.75)"; // Main cloud color: white, fairly transparent
+    // ctx.fill();
+
+    // Subtle darker base for a hint of volume (optional, can be adjusted)
+    // This will be drawn under the main puffs for a softer shadow.
+    // We can achieve this by drawing slightly darker, more transparent puffs first, offset downwards.
+
+    // Re-draw with a slightly more opaque center if desired, or keep as is.
+    // For simplicity, the current single fill creates a soft, merged look.
+
+    // If we want a more defined "shadow" or base, we could do another loop:
+    // ctx.beginPath(); // Combined into the corrected order section
+    // cloudPuffs.forEach(puff => {
+        // Draw slightly larger, darker, more transparent puffs offset downwards for a base/shadow
+    //     ctx.moveTo(puff.x + puff.r * 1.1, puff.y + 5 * baseScale);
+    //     ctx.arc(puff.x, puff.y + 5 * baseScale, puff.r * 1.1, 0, Math.PI * 2);
+    // });
+    // ctx.fillStyle = "rgba(220, 220, 235, 0.15)"; // Very light greyish-blue, very transparent for base
+    // ctx.fill();
+
+    // Then redraw the main white puffs on top (as done above)
+    // To ensure correct layering, let's draw shadow first, then main puffs.
+
+    // Corrected order for layering:
+    ctx.save(); // Save context state
+
+    // 1. Shadow/Base layer (darker, offset)
+    ctx.beginPath();
+    cloudPuffs.forEach(puff => {
+        const shadowX = puff.x + 2 * baseScale; // Slight horizontal offset for shadow
+        const shadowY = puff.y + 4 * baseScale; // Offset downwards
+        const shadowR = puff.r * 1.05; // Slightly larger
+        ctx.moveTo(shadowX + shadowR, shadowY);
+        ctx.arc(shadowX, shadowY, shadowR, 0, Math.PI * 2);
+    });
+    // A very light, slightly cool grey for the shadow, and very transparent
+    ctx.fillStyle = "rgba(180, 180, 200, 0.25)";
+    ctx.fill();
+
+    // 2. Main cloud puffs (whiter, on top)
+    ctx.beginPath();
+    cloudPuffs.forEach(puff => {
+        ctx.moveTo(puff.x + puff.r, puff.y);
+        ctx.arc(puff.x, puff.y, puff.r, 0, Math.PI * 2);
+    });
+    ctx.fillStyle = "rgba(255, 255, 255, 0.85)"; // Main cloud: white, more opaque than shadow
+    ctx.fill();
+
+    ctx.restore(); // Restore context state (if globalAlpha or other things were changed)
 }
 
 function colorAleatorio() {
